@@ -87,7 +87,14 @@ public:
 	int maps_n;
 	vector<vector<pair<int, int>>> maps;
 	list<set<int>> groups;
-	vector<pair<int, int>> edges;
+
+	struct vertex
+	{
+		set<int> buildings; // нярнпнфмн !!
+		int num;
+	};
+
+	vector<set<int>> vertices; //бннаые ме нвемэ!! &*?
 	Graph()
 	{
 		ifstream input;
@@ -107,6 +114,20 @@ public:
 				maps[i].push_back(make_pair(f, s));
 			}
 		}
+	}
+
+	void make_vertices()
+	{
+		vertices.resize(groups.size());
+	 // ясоеп нярнпнфмн C хмдейяюлх!!!!
+		int counter = 1;
+		for (set<int> g : groups)
+			if (g.find(1) != g.end())
+				vertices[0] = g;
+			else if (g.find(buildings_n) != g.end())
+				vertices[groups.size() - 1] = g;
+			else
+				vertices[counter++] = g;
 	}
 
 	// 1 map -> group(s)
@@ -152,6 +173,42 @@ public:
 		}
 	}
 	
+	void merge_dest() //!!!
+	{
+		set<int> temp;
+		//for (set<int> g : groups)
+		auto i = groups.begin();
+		while(i != groups.end())
+		{
+			if ((*i).find(buildings_n) != (*i).end())
+			{
+				for (int b : (*i))
+					temp.insert(b);
+				groups.erase(i++);
+			}
+			i++;
+		}
+		groups.push_back(temp);
+	} 
+
+	void merge_start() //!!!
+	{
+		set<int> temp;
+		//for (set<int> g : groups)
+		auto i = groups.begin();
+		while (i != groups.end())
+		{
+			if ((*i).find(1) != (*i).end())
+			{
+				for (int b : (*i))
+					temp.insert(b);
+				groups.erase(i++);
+			}
+			i++;
+		}
+		groups.push_back(temp);
+	} //
+
 	void make_edges()
 	{
 
@@ -168,7 +225,9 @@ int main()
 {
 	Graph g = Graph();
 	g.all_maps_to_groups();
-
+	g.merge_start();
+	g.merge_dest();
+	g.make_vertices();
 	//for each (auto x in maps)
 	{
 		//cout << is_connected(x) << endl;
