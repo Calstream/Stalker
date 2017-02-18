@@ -5,7 +5,7 @@
 #include<algorithm>
 #include<set>
 #include<list>
-using namespace std;
+using namespace std; // inline, ссылки, merge start+dest, выкинуть ненужное + комментарии, add_edge
 
 string const iname = "input.txt";
 string const oname = "output.txt";
@@ -87,14 +87,9 @@ public:
 	int maps_n;
 	vector<vector<pair<int, int>>> maps;
 	list<set<int>> groups;
-
-	struct vertex
-	{
-		set<int> buildings; // ОСТОРОЖНО !!
-		int num;
-	};
-
 	vector<set<int>> vertices; //ВООБЩЕ НЕ ОЧЕНЬ!! &*?
+	vector<list<int>> adj;
+
 	Graph()
 	{
 		ifstream input;
@@ -208,10 +203,37 @@ public:
 		}
 		groups.push_back(temp);
 	} //
-
-	void make_edges()
+	
+	void add_edge(int from, int to)
 	{
+		adj[from].push_back(to); // несколько одинаковых
+	}
 
+	bool edge_exists(int from, int to)
+	{
+		if (adj[from].empty())
+			return false;
+		return(find(adj[from].begin(), adj[from].end(),to) != adj[from].end());
+	}
+
+	void make_adj()
+	{
+		adj.resize(vertices.size());
+		for (int i = 0; i < vertices.size(); i++)
+		{
+			for(int b: vertices[i])
+				for (int j = 0; j < vertices.size(); j++)
+				{
+					if (i == j || edge_exists(i,j))
+						continue;
+					auto it = vertices[j].find(b);
+					if (it != vertices[j].end())
+					{
+						add_edge(i, j);
+						continue;
+					}
+				}
+		}
 	}
 
 	int get_path_length()
@@ -228,6 +250,7 @@ int main()
 	g.merge_start();
 	g.merge_dest();
 	g.make_vertices();
+	g.make_adj();
 	//for each (auto x in maps)
 	{
 		//cout << is_connected(x) << endl;
