@@ -5,80 +5,12 @@
 #include<algorithm>
 #include<set>
 #include<list>
-using namespace std; // inline, ссылки, merge start+dest, выкинуть ненужное + комментарии, add_edge
+#include<iterator>
+
+using namespace std; // ссылки, выкинуть ненужное + комментарии, add_edge, private/public
 
 string const iname = "input.txt";
 string const oname = "output.txt";
-
-bool is_connected(vector<pair<int,int>> v)
-{
-	if (v.size() == 1)
-		return true;
-	int b = v.size(); // number of buildings
-	vector<int> temp;
-	temp.push_back(v[0].first);
-	temp.push_back(v[0].second);
-	for (int i = 1; i < v.size(); i++)
-	{
-		auto resf = find(temp.begin(), temp.end(), v[i].first);
-		auto ress = find(temp.begin(), temp.end(), v[i].second);
-		if (resf == temp.end() && ress == temp.end())
-			return false;
-		temp.push_back(v[i].first);
-		temp.push_back(v[i].second);
-	}
-	return true;
-}
-//
-//bool road_on_map(vector<pair<int, int>> map, pair<int, int> road)
-//{
-//	for (int i = 0; i < map.size(); i++)
-//	{
-//		auto resf = find(map.begin(), map.end(), road[i].first);
-//		auto ress = find(temp.begin(), temp.end(), v[i].second);
-//		if (resf == temp.end() && ress == temp.end())
-//			return false;
-//	}
-//}
-
-//void split(vector<vector<pair<int, int>>> maps, vector<pair<int, int>> tbs)
-//{
-//	remove(maps.begin(), maps.end(), tbs);
-//	vector<vector<pair<int, int>>> temp;
-//	int parts = 1;
-//	temp.resize(parts);
-//	temp[0].push_back(tbs[0]);
-//	for (int i = 1; i < tbs.size; i++)
-//	{
-//		auto resf = find(temp.begin(), temp.end(), tbs[i].first);
-//		auto ress = find(temp.begin(), temp.end(), tbs[i].second);
-//		if (resf == temp.end() && ress == temp.end())
-//		{
-//			parts++;
-//			temp.resize(parts);
-//			temp[parts - 1].push_back(tbs[i]);
-//		}
-//	}
-//}
-
-//pair<vector<pair<int, int>>, vector<pair<int, int>>> split_in_two(vector<pair<int, int>> tbs)
-//{
-//	vector<int> temp;
-//	temp.push_back(tbs[0].first);
-//	temp.push_back(tbs[0].second);
-//	for (int i = 1; i < tbs.size(); i++)
-//	{
-//		auto resf = find(temp.begin(), temp.end(), tbs[i].first);
-//		auto ress = find(temp.begin(), temp.end(), tbs[i].second);
-//		if (resf == temp.end() && ress == temp.end())
-//		{
-//
-//		}
-//		temp.push_back(tbs[i].first);
-//		temp.push_back(tbs[i].second);
-//	}
-//	return true;
-//}
 
 class Graph
 {
@@ -87,8 +19,9 @@ public:
 	int maps_n;
 	vector<vector<pair<int, int>>> maps;
 	list<set<int>> groups;
-	vector<set<int>> vertices; //ВООБЩЕ НЕ ОЧЕНЬ!! &*?
+	vector<set<int>> vertices; // &*?
 	vector<list<int>> adj;
+	vector<int> distances;
 
 	Graph()
 	{
@@ -113,15 +46,13 @@ public:
 
 	void make_vertices()
 	{
-		vertices.resize(groups.size());
-	 // СУПЕР ОСТОРОЖНО C ИНДЕКСАМИ!!!!
+		vertices.resize(groups.size() + 2);
+		set<int> temp;
+		temp.insert(-1);
+		vertices[0] = temp;
+		vertices[vertices.size() - 1] = temp;
 		int counter = 1;
 		for (set<int> g : groups)
-			if (g.find(1) != g.end())
-				vertices[0] = g;
-			else if (g.find(buildings_n) != g.end())
-				vertices[groups.size() - 1] = g;
-			else
 				vertices[counter++] = g;
 	}
 
@@ -142,7 +73,7 @@ public:
 				if (g.find(roads[i].first) != g.end() || g.find(roads[i].second) != g.end()) // ins same val
 				{
 					g.insert(roads[i].first);
-					g.insert(roads[i].second); // iterator
+					g.insert(roads[i].second); 
 					f = true;
 				}
 			}
@@ -159,41 +90,22 @@ public:
 	void all_maps_to_groups()
 	{
 		list<set<int>> temp;
-		for each(auto map in maps)
+		for(auto map : maps)
 		{
 			map_to_groups(map, temp);
-			for each(auto s in temp)
+			for(auto s : temp)
 				groups.push_back(s);
 			temp.clear();
 		}
 	}
 	
-	void merge_dest() //!!!
+	void merge_ver(int n)
 	{
 		set<int> temp;
-		//for (set<int> g : groups)
-		auto i = groups.begin();
-		while(i != groups.end())
-		{
-			if ((*i).find(buildings_n) != (*i).end())
-			{
-				for (int b : (*i))
-					temp.insert(b);
-				groups.erase(i++);
-			}
-			i++;
-		}
-		groups.push_back(temp);
-	} 
-
-	void merge_start() //!!!
-	{
-		set<int> temp;
-		//for (set<int> g : groups)
 		auto i = groups.begin();
 		while (i != groups.end())
 		{
-			if ((*i).find(1) != (*i).end())
+			if ((*i).find(n) != (*i).end())
 			{
 				for (int b : (*i))
 					temp.insert(b);
@@ -202,14 +114,16 @@ public:
 			i++;
 		}
 		groups.push_back(temp);
-	} //
+	}
 	
-	void add_edge(int from, int to)
+	
+	void inline add_edge(int from, int to)
 	{
-		adj[from].push_back(to); // несколько одинаковых
+		adj[from].push_back(to); // to -> from j=i to end
+		adj[to].push_back(from);
 	}
 
-	bool edge_exists(int from, int to)
+	bool inline edge_exists(int from, int to)
 	{
 		if (adj[from].empty())
 			return false;
@@ -218,27 +132,93 @@ public:
 
 	void make_adj()
 	{
-		adj.resize(vertices.size());
-		for (int i = 0; i < vertices.size(); i++)
+		adj.resize(vertices.size()); // 0 - supersource, adj.size() - supersink 
+		for (int i = 1; i < vertices.size(); i++)
 		{
-			for(int b: vertices[i])
-				for (int j = 0; j < vertices.size(); j++)
+			if (vertices[i].find(1) != vertices[i].end())
+				add_edge(0, i);
+			if (vertices[i].find(buildings_n) != vertices[i].end())
+				add_edge(adj.size() - 1, i);
+
+				for (int j = i+1; j < vertices.size(); j++) // to -> from j=i to end
 				{
-					if (i == j || edge_exists(i,j))
+					if (/*i == j ||*/ edge_exists(i, j)) // true?
 						continue;
-					auto it = vertices[j].find(b);
-					if (it != vertices[j].end())
+					set<int> intersection;
+					set_intersection(vertices[i].begin(), vertices[i].end(), vertices[j].begin(), vertices[j].end(),
+						inserter(intersection, intersection.begin()));
+					if (!intersection.empty())
 					{
 						add_edge(i, j);
-						continue;
 					}
 				}
+
+			//if (vertices[i].find(1) != vertices[i].end())
+			//	add_edge(0, i);
+			//if (vertices[i].find(buildings_n) != vertices[i].end())
+			//	add_edge(adj.size() - 1, i);
+			//for(int b: vertices[i])
+			//	for (int j = 1; j < vertices.size(); j++) // to -> from j=i to end
+			//	{
+			//		if (i == j || edge_exists(i,j))
+			//			continue;
+			//		auto it = vertices[j].find(b);
+			//		if (it != vertices[j].end())
+			//		{
+			//			add_edge(i, j);
+			//			continue;
+			//		}
+			//	}
 		}
 	}
 
-	int get_path_length()
+	void bfs(int start)
 	{
+		// Mark all the vertices as not visited
+		vector<bool> visited;
+		visited.resize(vertices.size());
+		for (int i = 0; i < visited.size(); i++)
+			visited[i] = false;
 
+		// Create a queue for BFS
+		list<int> queue;
+
+		// Mark the current node as visited and enqueue it
+		visited[start] = true;
+		queue.push_back(start);
+
+		while (!queue.empty())
+		{
+			// Dequeue a vertex from queue and print it
+			start = queue.front();
+			//cout << start << " ";
+			int u = queue.front();
+			queue.pop_front();
+
+			// Get all adjacent vertices of the dequeued vertex s
+			// If a adjacent has not been visited, then mark it visited
+			// and enqueue it
+			//for (i = adj[start].begin(); i != adj[start].end(); ++i)
+			for(auto v: adj[start])
+			{
+				if (!visited[v])
+				{
+					visited[v] = true;
+					queue.push_back(v);
+					distances[v] = distances[u] + 1;
+				}
+			}
+		}
+	}
+
+	int get_result()
+	{
+		all_maps_to_groups();
+		make_vertices();
+		make_adj();
+		distances.resize(vertices.size());
+		bfs(0);
+		return distances[distances.size() - 1] - 1;
 	}
 };
 
@@ -246,88 +226,13 @@ public:
 int main()
 {
 	Graph g = Graph();
-	g.all_maps_to_groups();
-	g.merge_start();
-	g.merge_dest();
-	g.make_vertices();
-	g.make_adj();
-	//for each (auto x in maps)
-	{
-		//cout << is_connected(x) << endl;
-		/*if (!is_connected(x))
-			split(maps, x);*/
-	}
+	ofstream output;
+	output.open(oname);
+	output.clear();
+	output << g.get_result();
 
 	getchar();
-	/*
-	
-	string s = "";
-	int n = 0;
-	input >> n;
-	int m = 0;
-	input >> m;
-	//input.ignore();
-	Graph g1(n, m);
-	for (size_t i = 0; i <= m-1; i++)
-	{
-		int v1;
-		int v2;
-		int w;
-		input >> v1;
-		input >> v2;
-		input >> w;
-		g1.AddEdge(v1, v2, w);
-	}
-	input.close();
-
-	*/
-
 }
 
 
 
-/*
-
-bool inline conn(pair<int, int> p, set<int> s)
-{
-auto resf = find(s.begin(), s.end(), p.first);
-auto ress = find(s.begin(), s.end(), p.second);
-if (resf == s.end() && ress == s.end())
-return false;
-return true;
-}
-
-void make_groups()
-{
-set<int> temp;
-temp.insert(maps[0][0].first);
-temp.insert(maps[0][0].second);
-groups.push_back(temp);
-temp.clear();
-for each(auto x in maps)
-{
-bool f = false;
-for (size_t i = 1; i < x.size(); i++)
-{
-for each (auto g in groups)
-{
-f = false;
-if (conn(x[i], g))
-{
-g.insert(x[i].first);
-g.insert(x[i].second);
-f = true;
-continue;
-}
-}
-if (!f)
-{
-temp.insert(x[i].first);
-temp.insert(x[i].second);
-groups.push_back(temp);
-temp.clear();
-}
-}
-}
-}
-*/
