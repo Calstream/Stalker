@@ -211,7 +211,7 @@ public:
 				if (!intersection_temp.empty())
 				{
 					set<int> symm_dif_temp;
-					set_symmetric_difference(g.begin(), g.end(), layer.begin(), layer.end(),
+					set_difference(g.begin(), g.end(), layer.begin(), layer.end(),
 						inserter(symm_dif_temp, symm_dif_temp.begin()));
 					set_union(symm_dif_temp.begin(), symm_dif_temp.end(),
 						next_layer.begin(), next_layer.end(), inserter(next_layer, next_layer.end()));
@@ -222,8 +222,9 @@ public:
 			if (next_layer.empty())
 				break;
 			layer.empty();
-			copy(next_layer.begin(), next_layer.end(), layer.begin());
-			next_layer.empty();
+			layer = next_layer;
+			//copy(next_layer.begin(), next_layer.end(), layer.begin());
+			next_layer.clear();
 			result++;
 		}
 		
