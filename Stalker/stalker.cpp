@@ -10,7 +10,7 @@
 
 using namespace std; // private/public 
 
-string const iname = "input1.txt";
+string const iname = "input3.txt";
 string const oname = "output.txt";
 
 class Graph
@@ -23,6 +23,8 @@ private:
 	vector<set<int>> vertices; // &*?
 	vector<list<int>> adj;
 	vector<int> distances;
+
+	
 
 	void make_vertices()
 	{
@@ -79,6 +81,8 @@ private:
 			temp.clear();
 		}
 	}
+
+
 
 	void inline add_edge(int from, int to)
 	{
@@ -169,12 +173,79 @@ public:
 		}
 	}
 
-	
+	int DIMAS()
+	{
+		int result = 1;
+		set<int> layer;
+		bool remove_prev = false;
+		list<set<int>>::iterator it;
+		for (set<int> g : groups)
+		{
+			if (remove_prev)
+			{
+				remove_prev = false;
+				groups.erase(it);
+			}
+			if (g.find(1) != g.end())
+			{
+				set_union(g.begin(), g.end(), layer.begin(), layer.end(), inserter(layer,layer.end()));
+				remove_prev = true;
+				it = find(groups.begin(), groups.end(), g);
+				//groups.erase(find(groups.begin(), groups.end(), g)); // HY TAKOE + invalidates
+			}
+		}
+
+		set<int> next_layer;
+		while (true)
+		{
+			for (set<int> g : groups)
+			{
+				if (remove_prev)
+				{
+					remove_prev = false;
+					groups.erase(it);
+				}
+				set<int> intersection_temp;
+				set_intersection(g.begin(), g.end(), layer.begin(), layer.end(),
+					inserter(intersection_temp, intersection_temp.begin()));
+				if (!intersection_temp.empty())
+				{
+					set<int> symm_dif_temp;
+					set_symmetric_difference(g.begin(), g.end(), layer.begin(), layer.end(),
+						inserter(symm_dif_temp, symm_dif_temp.begin()));
+					set_union(symm_dif_temp.begin(), symm_dif_temp.end(),
+						next_layer.begin(), next_layer.end(), inserter(next_layer, next_layer.end()));
+					remove_prev = true;
+					it = find(groups.begin(), groups.end(), g);
+				}
+			}
+			if (next_layer.empty())
+				break;
+			layer.empty();
+			copy(next_layer.begin(), next_layer.end(), layer.begin());
+			next_layer.empty();
+			result++;
+		}
+		
+
+		return result;
+
+
+		/*set<int> intersection;
+		set_intersection(vertices[i].begin(), vertices[i].end(), vertices[j].begin(), vertices[j].end(),
+		inserter(intersection, intersection.begin()));
+		if (!intersection.empty())
+		{
+		add_edge(i, j);
+		}*/
+		return 0;
+	}
 
 	int get_result()
 	{
 		all_maps_to_groups();
 		make_vertices();
+		DIMAS();
 		make_adj();
 		distances.resize(vertices.size());
 		bfs(0);
