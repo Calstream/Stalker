@@ -3,13 +3,13 @@
 #include<fstream>
 #include<vector>
 #include<algorithm>
-#include<set>
+#include<unordered_set>
 #include<list>
 #include<iterator>
 
 using namespace std; // ссылки, выкинуть ненужное + комментарии, private/public 
 
-string const iname = "input.txt";
+string const iname = "input1.txt";
 string const oname = "output.txt";
 
 class Graph
@@ -18,8 +18,8 @@ public:
 	int buildings_n;
 	int maps_n;
 	vector<vector<pair<int, int>>> maps;
-	list<set<int>> groups;
-	vector<set<int>> vertices; // &*?
+	list<unordered_set<int>> groups;
+	vector<unordered_set<int>> vertices; // &*?
 	vector<list<int>> adj;
 	vector<int> distances;
 
@@ -47,19 +47,19 @@ public:
 	void make_vertices()
 	{
 		vertices.resize(groups.size() + 2);
-		set<int> temp;
+		unordered_set<int> temp;
 		temp.insert(-1);
 		vertices[0] = temp;
 		vertices[vertices.size() - 1] = temp;
 		int counter = 1;
-		for (set<int> g : groups)
+		for (unordered_set<int> g : groups)
 				vertices[counter++] = g;
 	}
 
 	// 1 map -> group(s)
-	void map_to_groups(vector<pair<int, int>> & roads, list<set<int>> & new_groups)
+	void map_to_groups(vector<pair<int, int>> & roads, list<unordered_set<int>> & new_groups)
 	{
-		set<int> temp;
+		unordered_set<int> temp;
 		temp.insert(roads[0].first);
 		temp.insert(roads[0].second);
 		new_groups.push_back(temp);
@@ -68,7 +68,7 @@ public:
 		for (int i = 1; i < roads.size(); i++)
 		{
 			bool f = false; // false - make new group
-			for (set<int> & g : new_groups)
+			for (unordered_set<int> & g : new_groups)
 			{
 				if (g.find(roads[i].first) != g.end() || g.find(roads[i].second) != g.end()) // ins same val
 				{
@@ -89,7 +89,7 @@ public:
 	
 	void all_maps_to_groups()
 	{
-		list<set<int>> temp;
+		list<unordered_set<int>> temp;
 		for(auto map : maps)
 		{
 			map_to_groups(map, temp);
@@ -126,13 +126,15 @@ public:
 			{
 				if (edge_exists(i, j)) // true?
 					continue;
-				set<int> intersection;
-				set_intersection(vertices[i].begin(), vertices[i].end(), vertices[j].begin(), vertices[j].end(),
-					inserter(intersection, intersection.begin()));
-				if (!intersection.empty())
+				for (int x : vertices[i])
 				{
-					add_edge(i, j);
+					if (vertices[j].find(x) != vertices[j].end())
+					{
+						add_edge(i, j);
+						continue;
+					}
 				}
+				
 			}
 		}
 	}
