@@ -7,7 +7,7 @@
 #include<list>
 #include<iterator>
 
-using namespace std; // ссылки, выкинуть ненужное + комментарии, add_edge, private/public
+using namespace std; // ссылки, выкинуть ненужное + комментарии, private/public 
 
 string const iname = "input.txt";
 string const oname = "output.txt";
