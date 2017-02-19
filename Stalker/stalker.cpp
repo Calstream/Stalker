@@ -99,27 +99,9 @@ public:
 		}
 	}
 	
-	void merge_ver(int n)
-	{
-		set<int> temp;
-		auto i = groups.begin();
-		while (i != groups.end())
-		{
-			if ((*i).find(n) != (*i).end())
-			{
-				for (int b : (*i))
-					temp.insert(b);
-				groups.erase(i++);
-			}
-			i++;
-		}
-		groups.push_back(temp);
-	}
-	
-	
 	void inline add_edge(int from, int to)
 	{
-		adj[from].push_back(to); // to -> from j=i to end
+		adj[from].push_back(to);
 		adj[to].push_back(from);
 	}
 
@@ -140,72 +122,45 @@ public:
 			if (vertices[i].find(buildings_n) != vertices[i].end())
 				add_edge(adj.size() - 1, i);
 
-				for (int j = i+1; j < vertices.size(); j++) // to -> from j=i to end
+			for (int j = i+1; j < vertices.size(); j++) 
+			{
+				if (edge_exists(i, j)) // true?
+					continue;
+				set<int> intersection;
+				set_intersection(vertices[i].begin(), vertices[i].end(), vertices[j].begin(), vertices[j].end(),
+					inserter(intersection, intersection.begin()));
+				if (!intersection.empty())
 				{
-					if (/*i == j ||*/ edge_exists(i, j)) // true?
-						continue;
-					set<int> intersection;
-					set_intersection(vertices[i].begin(), vertices[i].end(), vertices[j].begin(), vertices[j].end(),
-						inserter(intersection, intersection.begin()));
-					if (!intersection.empty())
-					{
-						add_edge(i, j);
-					}
+					add_edge(i, j);
 				}
-
-			//if (vertices[i].find(1) != vertices[i].end())
-			//	add_edge(0, i);
-			//if (vertices[i].find(buildings_n) != vertices[i].end())
-			//	add_edge(adj.size() - 1, i);
-			//for(int b: vertices[i])
-			//	for (int j = 1; j < vertices.size(); j++) // to -> from j=i to end
-			//	{
-			//		if (i == j || edge_exists(i,j))
-			//			continue;
-			//		auto it = vertices[j].find(b);
-			//		if (it != vertices[j].end())
-			//		{
-			//			add_edge(i, j);
-			//			continue;
-			//		}
-			//	}
+			}
 		}
 	}
 
 	void bfs(int start)
 	{
-		// Mark all the vertices as not visited
 		vector<bool> visited;
 		visited.resize(vertices.size());
 		for (int i = 0; i < visited.size(); i++)
 			visited[i] = false;
 
-		// Create a queue for BFS
 		list<int> queue;
 
-		// Mark the current node as visited and enqueue it
 		visited[start] = true;
 		queue.push_back(start);
 
 		while (!queue.empty())
 		{
-			// Dequeue a vertex from queue and print it
 			start = queue.front();
-			//cout << start << " ";
-			int u = queue.front();
 			queue.pop_front();
 
-			// Get all adjacent vertices of the dequeued vertex s
-			// If a adjacent has not been visited, then mark it visited
-			// and enqueue it
-			//for (i = adj[start].begin(); i != adj[start].end(); ++i)
 			for(auto v: adj[start])
 			{
 				if (!visited[v])
 				{
 					visited[v] = true;
 					queue.push_back(v);
-					distances[v] = distances[u] + 1;
+					distances[v] = distances[start] + 1;
 				}
 			}
 		}
