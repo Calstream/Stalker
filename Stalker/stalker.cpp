@@ -4,17 +4,18 @@
 #include<vector>
 #include<algorithm>
 #include<set>
+#include<map>
 #include<list>
 #include<iterator>
 
-using namespace std; // ссылки, выкинуть ненужное + комментарии, private/public 
+using namespace std; // private/public 
 
 string const iname = "input1.txt";
 string const oname = "output.txt";
 
 class Graph
 {
-public:
+private:
 	int buildings_n;
 	int maps_n;
 	vector<vector<pair<int, int>>> maps;
@@ -22,27 +23,6 @@ public:
 	vector<set<int>> vertices; // &*?
 	vector<list<int>> adj;
 	vector<int> distances;
-
-	Graph()
-	{
-		ifstream input;
-		input.open(iname);
-		input >> buildings_n;
-		input >> maps_n;
-		maps.resize(maps_n);
-		for (int i = 0; i < maps_n; i++)
-		{
-			int roads_n;
-			input >> roads_n;
-			for (int j = 1; j <= roads_n; j++)
-			{
-				int f, s;
-				input >> f;
-				input >> s;
-				maps[i].push_back(make_pair(f, s));
-			}
-		}
-	}
 
 	void make_vertices()
 	{
@@ -53,8 +33,9 @@ public:
 		vertices[vertices.size() - 1] = temp;
 		int counter = 1;
 		for (set<int> g : groups)
-				vertices[counter++] = g;
+			vertices[counter++] = g;
 	}
+
 
 	// 1 map -> group(s)
 	void map_to_groups(vector<pair<int, int>> & roads, list<set<int>> & new_groups)
@@ -64,7 +45,7 @@ public:
 		temp.insert(roads[0].second);
 		new_groups.push_back(temp);
 		temp.clear();
-		
+
 		for (int i = 1; i < roads.size(); i++)
 		{
 			bool f = false; // false - make new group
@@ -73,7 +54,7 @@ public:
 				if (g.find(roads[i].first) != g.end() || g.find(roads[i].second) != g.end()) // ins same val
 				{
 					g.insert(roads[i].first);
-					g.insert(roads[i].second); 
+					g.insert(roads[i].second);
 					f = true;
 				}
 			}
@@ -85,20 +66,20 @@ public:
 				temp.clear();
 			}
 		}
-}
-	
+	}
+
 	void all_maps_to_groups()
 	{
 		list<set<int>> temp;
-		for(auto map : maps)
+		for (auto map : maps)
 		{
 			map_to_groups(map, temp);
-			for(auto s : temp)
+			for (auto s : temp)
 				groups.push_back(s);
 			temp.clear();
 		}
 	}
-	
+
 	void inline add_edge(int from, int to)
 	{
 		adj[from].push_back(to);
@@ -109,12 +90,12 @@ public:
 	{
 		if (adj[from].empty())
 			return false;
-		return(find(adj[from].begin(), adj[from].end(),to) != adj[from].end());
+		return(find(adj[from].begin(), adj[from].end(), to) != adj[from].end());
 	}
 
 	void make_adj()
 	{
-		adj.resize(vertices.size()); // 0 - supersource, adj.size() - supersink 
+		adj.resize(vertices.size());
 		for (int i = 1; i < vertices.size(); i++)
 		{
 			if (vertices[i].find(1) != vertices[i].end())
@@ -122,7 +103,7 @@ public:
 			if (vertices[i].find(buildings_n) != vertices[i].end())
 				add_edge(adj.size() - 1, i);
 
-			for (int j = i+1; j < vertices.size(); j++) 
+			for (int j = i + 1; j < vertices.size(); j++)
 			{
 				if (edge_exists(i, j)) // true?
 					continue;
@@ -154,7 +135,7 @@ public:
 			start = queue.front();
 			queue.pop_front();
 
-			for(auto v: adj[start])
+			for (auto v : adj[start])
 			{
 				if (!visited[v])
 				{
@@ -165,6 +146,30 @@ public:
 			}
 		}
 	}
+
+public:
+	Graph()
+	{
+		ifstream input;
+		input.open(iname);
+		input >> buildings_n;
+		input >> maps_n;
+		maps.resize(maps_n);
+		for (int i = 0; i < maps_n; i++)
+		{
+			int roads_n;
+			input >> roads_n;
+			for (int j = 1; j <= roads_n; j++)
+			{
+				int f, s;
+				input >> f;
+				input >> s;
+				maps[i].push_back(make_pair(f, s));
+			}
+		}
+	}
+
+	
 
 	int get_result()
 	{
