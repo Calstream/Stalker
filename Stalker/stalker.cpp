@@ -9,7 +9,7 @@
 
 using namespace std; // ссылки, выкинуть ненужное + комментарии, private/public 
 
-string const iname = "input.txt";
+string const iname = "input1.txt";
 string const oname = "output.txt";
 
 class Graph
