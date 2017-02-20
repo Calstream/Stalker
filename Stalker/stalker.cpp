@@ -20,19 +20,6 @@ private:
 	int maps_n;
 	vector<vector<pair<int, int>>> maps;
 	list<set<int>> groups;
-	vector<set<int>> vertices; // &*?
-
-	void make_vertices()
-	{
-		vertices.resize(groups.size() + 2);
-		set<int> temp;
-		temp.insert(-1);
-		vertices[0] = temp;
-		vertices[vertices.size() - 1] = temp;
-		int counter = 1;
-		for (set<int> g : groups)
-			vertices[counter++] = g;
-	}
 
 	void map_to_groups(vector<pair<int, int>> & roads, list<set<int>> & new_groups)
 	{
@@ -134,10 +121,10 @@ public:
 					inserter(intersection_temp, intersection_temp.begin()));
 				if (!intersection_temp.empty())
 				{
-					set<int> symm_dif_temp;
+					set<int> dif_temp;
 					set_difference(g.begin(), g.end(), layer.begin(), layer.end(),
-						inserter(symm_dif_temp, symm_dif_temp.begin()));
-					set_union(symm_dif_temp.begin(), symm_dif_temp.end(),
+						inserter(dif_temp, dif_temp.begin()));
+					set_union(dif_temp.begin(), dif_temp.end(),
 						next_layer.begin(), next_layer.end(), inserter(next_layer, next_layer.end()));
 					remove_prev = true;
 					it = find(groups.begin(), groups.end(), g);
@@ -165,7 +152,6 @@ public:
 	int get_result()
 	{
 		all_maps_to_groups();
-		make_vertices();
 		int r = DIMAS();
 		return r;
 	}
