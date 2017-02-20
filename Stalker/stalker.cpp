@@ -10,7 +10,7 @@
 
 using namespace std; // private/public 
 
-string const iname = "input3.txt";
+string const iname = "input.txt";
 string const oname = "output.txt";
 
 class Graph
@@ -191,7 +191,6 @@ public:
 				set_union(g.begin(), g.end(), layer.begin(), layer.end(), inserter(layer,layer.end()));
 				remove_prev = true;
 				it = find(groups.begin(), groups.end(), g);
-				//groups.erase(find(groups.begin(), groups.end(), g)); // HY TAKOE + invalidates
 			}
 		}
 
@@ -219,38 +218,35 @@ public:
 					it = find(groups.begin(), groups.end(), g);
 				}
 			}
+			if (remove_prev)
+			{
+				remove_prev = false;
+				groups.erase(it);
+			}
+			result++;
+			if (next_layer.find(buildings_n) != next_layer.end())
+				return result;
 			if (next_layer.empty())
 				break;
-			layer.empty();
 			layer = next_layer;
-			//copy(next_layer.begin(), next_layer.end(), layer.begin());
 			next_layer.clear();
-			result++;
 		}
 		
-
+		if (groups.size() != 0)
+			result = -1;
 		return result;
-
-
-		/*set<int> intersection;
-		set_intersection(vertices[i].begin(), vertices[i].end(), vertices[j].begin(), vertices[j].end(),
-		inserter(intersection, intersection.begin()));
-		if (!intersection.empty())
-		{
-		add_edge(i, j);
-		}*/
-		return 0;
 	}
 
 	int get_result()
 	{
 		all_maps_to_groups();
 		make_vertices();
-		DIMAS();
-		make_adj();
-		distances.resize(vertices.size());
-		bfs(0);
-		return distances[distances.size() - 1] - 1;
+		int r = DIMAS();
+		return r;
+		//make_adj();
+		//distances.resize(vertices.size());
+		//bfs(0);
+		//return distances[distances.size() - 1] - 1;
 	}
 };
 
@@ -262,7 +258,6 @@ int main()
 	output.open(oname);
 	output.clear();
 	output << g.get_result();
-
 	getchar();
 }
 
