@@ -8,7 +8,7 @@
 #include<list>
 #include<iterator>
 
-using namespace std; // private/public 
+using namespace std;
 
 string const iname = "input.txt";
 string const oname = "output.txt";
@@ -21,10 +21,6 @@ private:
 	vector<vector<pair<int, int>>> maps;
 	list<set<int>> groups;
 	vector<set<int>> vertices; // &*?
-	vector<list<int>> adj;
-	vector<int> distances;
-
-	
 
 	void make_vertices()
 	{
@@ -38,8 +34,6 @@ private:
 			vertices[counter++] = g;
 	}
 
-
-	// 1 map -> group(s)
 	void map_to_groups(vector<pair<int, int>> & roads, list<set<int>> & new_groups)
 	{
 		set<int> temp;
@@ -79,75 +73,6 @@ private:
 			for (auto s : temp)
 				groups.push_back(s);
 			temp.clear();
-		}
-	}
-
-
-
-	void inline add_edge(int from, int to)
-	{
-		adj[from].push_back(to);
-		adj[to].push_back(from);
-	}
-
-	bool inline edge_exists(int from, int to)
-	{
-		if (adj[from].empty())
-			return false;
-		return(find(adj[from].begin(), adj[from].end(), to) != adj[from].end());
-	}
-
-	void make_adj()
-	{
-		adj.resize(vertices.size());
-		for (int i = 1; i < vertices.size(); i++)
-		{
-			if (vertices[i].find(1) != vertices[i].end())
-				add_edge(0, i);
-			if (vertices[i].find(buildings_n) != vertices[i].end())
-				add_edge(adj.size() - 1, i);
-
-			for (int j = i + 1; j < vertices.size(); j++)
-			{
-				if (edge_exists(i, j)) // true?
-					continue;
-				set<int> intersection;
-				set_intersection(vertices[i].begin(), vertices[i].end(), vertices[j].begin(), vertices[j].end(),
-					inserter(intersection, intersection.begin()));
-				if (!intersection.empty())
-				{
-					add_edge(i, j);
-				}
-			}
-		}
-	}
-
-	void bfs(int start)
-	{
-		vector<bool> visited;
-		visited.resize(vertices.size());
-		for (int i = 0; i < visited.size(); i++)
-			visited[i] = false;
-
-		list<int> queue;
-
-		visited[start] = true;
-		queue.push_back(start);
-
-		while (!queue.empty())
-		{
-			start = queue.front();
-			queue.pop_front();
-
-			for (auto v : adj[start])
-			{
-				if (!visited[v])
-				{
-					visited[v] = true;
-					queue.push_back(v);
-					distances[v] = distances[start] + 1;
-				}
-			}
 		}
 	}
 
@@ -243,10 +168,6 @@ public:
 		make_vertices();
 		int r = DIMAS();
 		return r;
-		//make_adj();
-		//distances.resize(vertices.size());
-		//bfs(0);
-		//return distances[distances.size() - 1] - 1;
 	}
 };
 
