@@ -3,10 +3,11 @@
 #include<vector>
 #include<deque>
 #include<climits>
+#include<map>
 
 using namespace std;
 
-string const iname = "input1.txt";
+string const iname = "input.txt";
 string const oname = "output.txt";
 
 class Graph
@@ -15,7 +16,8 @@ public:
 	int maps_n;
 	deque<int> queue;
 	vector<pair<int, int>> vertices; // first - map, second - building
-	vector<vector<pair<int, int>>> adj; // NK + N ~ buildings_n * maps_n + buildings_n
+	map<int, vector<pair<int, int>>> adj;
+	//vector<vector<pair<int, int>>> adj; // NK + N ~ buildings_n * maps_n + buildings_n
 	int max_vertices;
 	vector<int> distances;
 	int buildings_n;
@@ -27,7 +29,7 @@ public:
 		input >> maps_n;
 		input.close();
 		max_vertices = buildings_n * maps_n + buildings_n;
-		adj.resize(max_vertices);
+		//adj.resize(max_vertices);
 		distances.resize(max_vertices);
 		for (int i = 0; i < max_vertices; i++)
 			distances[i] = INT_MAX;
@@ -35,18 +37,7 @@ public:
 
 	void make_adj()
 	{
-		//Добавим для каждого x вершину (x, 0), и проведем для каждого y дуги (x, 0) → (x, y) с весом 1  
-		for (int i = 0; i < maps_n; i++)
-			for (int j = 0; j < buildings_n; j++)
-				adj[j].emplace_back(buildings_n * i + j + buildings_n, 1);
-
-		// и (x, y) → (x, 0) с весом 0
-		for (int i = buildings_n; i < max_vertices; i++)
-		{
-			int t = i % buildings_n;
-			adj[i].emplace_back(t, 0);
-		}
-		// остальные (между зданиями в пределах одной карты, вес = 0)
+		// остальные 
 		ifstream input;
 		input.open(iname);
 		string ignore;
@@ -66,11 +57,37 @@ public:
 				// индекс состояния (m, b) в массиве adj = m * buildings_n + b % buildings_n
 				int ind_i_from = i * buildings_n + ((from - 1) % buildings_n);
 				int ind_i_to = i * buildings_n + ((to - 1) % buildings_n);
+
+				//(между зданиями в пределах одной карты, вес = 0)
 				adj[ind_i_from].emplace_back(ind_i_to, 0);
 				adj[ind_i_to].emplace_back(ind_i_from, 0);
+
+				//(x, y) → (x, 0) с весом 0 
+				adj[ind_i_from].emplace_back(ind_i_from % buildings_n, 0);
+				adj[ind_i_to].emplace_back(ind_i_to % buildings_n, 0);
+
+				//Добавим для каждого x вершину (x, 0), и проведем для каждого y дуги 
+				adj[(from - 1) % buildings_n].emplace_back(ind_i_from, 1);
+				adj[(to - 1) % buildings_n].emplace_back(ind_i_to, 1);
 			}
 		}
 		input.close();
+
+
+		// 
+		//for (int i = 0; i < buildings_n; i++)
+		//	adj[i];
+		//for (int i = 0; i < maps_n; i++)
+		//	for (int j = 0; j < buildings_n; j++)
+		//	adj[j].emplace_back(buildings_n * i + j + buildings_n, 1);
+
+		// и (x, y) → (x, 0) с весом 0
+		/*for (int i = buildings_n; i < max_vertices; i++)
+		{
+			int t = i % buildings_n;
+			adj[i].emplace_back(t, 0);
+		}*/
+		
 	}
 
 	void bfs()
