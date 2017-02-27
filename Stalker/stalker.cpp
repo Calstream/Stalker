@@ -6,19 +6,17 @@
 
 using namespace std;
 
-string const iname = "input.txt";
+string const iname = "input1.txt";
 string const oname = "output.txt";
 
 class Graph
 {
-private:
+public:
 	int maps_n;
 	deque<int> queue;
 	vector<pair<int, int>> vertices; // first - map, second - building
 	vector<vector<pair<int, int>>> adj; // NK + N ~ buildings_n * maps_n + buildings_n
-	vector<vector<pair<int, int>>> maps;
 	int max_vertices;
-public:
 	vector<int> distances;
 	int buildings_n;
 	Graph()
@@ -41,6 +39,7 @@ public:
 		for (int i = 0; i < maps_n; i++)
 			for (int j = 0; j < buildings_n; j++)
 				adj[j].emplace_back(buildings_n * i + j + buildings_n, 1);
+
 		// и (x, y) → (x, 0) с весом 0
 		for (int i = buildings_n; i < max_vertices; i++)
 		{
