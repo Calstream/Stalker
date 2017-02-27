@@ -23,6 +23,7 @@ private:
 	deque<int> queue;
 	vector<pair<int, int>> vertices; // first - map, second - building
 	vector<vector<pair<int, int>>> adj; // NK + N ~ buildings_n * maps_n + buildings_n
+	vector<vector<pair<int, int>>> maps;
 	int max_vertices;
 public:
 	Graph()
@@ -31,6 +32,7 @@ public:
 		input.open(iname);
 		input >> buildings_n;
 		input >> maps_n;
+		input.close();
 		max_vertices = buildings_n * maps_n + buildings_n;
 		adj.resize(max_vertices);
 		distances.resize(buildings_n);
@@ -54,7 +56,29 @@ public:
 			adj[i].emplace_back(t, 0);
 		}
 		// остальные (между зданиями в пределах одной карты, вес = 0)
+		ifstream input;
+		input.open(iname);
+		input.ignore();
+		input.ignore();
+		for (int i = 1; i <= maps_n; i++)
+		{
+			int n_roads_temp;
+			input >> n_roads_temp;
+			for (int j = 0; j < n_roads_temp; j++)
+			{
+				int from;
+				int to;
+				input >> from; // дорога между from и to на карте с номером  i
+				input >> to;
+				// информация об i-й карте в adj с i * buildings_n по i * buildings_n + buildings_n - 1
+				// здания определяются по остатку от деления на buildings_n
+				// индекс состояния (m, b) в массиве adj = m * buildings_n + b % buildings_n
+				adj[]
 
+			}
+
+		}
+		input.close();
 	}
 
 	void bfs()
