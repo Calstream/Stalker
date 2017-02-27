@@ -3,7 +3,7 @@
 #include<vector>
 #include<deque>
 #include<climits>
-#include<map>
+#include<unordered_map>
 
 using namespace std;
 
@@ -16,7 +16,7 @@ public:
 	int maps_n;
 	deque<int> queue;
 	vector<pair<int, int>> vertices; // first - map, second - building
-	map<int, vector<pair<int, int>>> adj;
+	unordered_map<int, vector<pair<int, int>>> adj;
 	//vector<vector<pair<int, int>>> adj; // NK + N ~ buildings_n * maps_n + buildings_n
 	int max_vertices;
 	vector<int> distances;
@@ -72,22 +72,6 @@ public:
 			}
 		}
 		input.close();
-
-
-		// 
-		//for (int i = 0; i < buildings_n; i++)
-		//	adj[i];
-		//for (int i = 0; i < maps_n; i++)
-		//	for (int j = 0; j < buildings_n; j++)
-		//	adj[j].emplace_back(buildings_n * i + j + buildings_n, 1);
-
-		// и (x, y) → (x, 0) с весом 0
-		/*for (int i = buildings_n; i < max_vertices; i++)
-		{
-			int t = i % buildings_n;
-			adj[i].emplace_back(t, 0);
-		}*/
-		
 	}
 
 	void bfs()
