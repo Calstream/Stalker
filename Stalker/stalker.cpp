@@ -36,10 +36,12 @@ public:
 		max_vertices = buildings_n * maps_n + buildings_n;
 		adj.resize(max_vertices);
 		distances.resize(buildings_n);
+
 		for (int i = 1; i <= buildings_n; i++)
 			vertices.push_back(make_pair(0, i));
-		for (int i = 1; i <= buildings_n; i++)
-			for (int j = 1; j <= maps_n; j++)
+
+		for (int i = 1; i <= maps_n; i++)
+			for (int j = 1; j <= buildings_n; j++)
 				vertices.push_back(make_pair(i, j));
  	}
 
@@ -60,11 +62,12 @@ public:
 		input.open(iname);
 		input.ignore();
 		input.ignore();
+		input.ignore();
 		for (int i = 1; i <= maps_n; i++)
 		{
 			int n_roads_temp;
 			input >> n_roads_temp;
-			for (int j = 0; j < n_roads_temp; j++)
+			for (int j = 1; j <= n_roads_temp; j++)
 			{
 				int from;
 				int to;
@@ -73,10 +76,11 @@ public:
 				// информация об i-й карте в adj с i * buildings_n по i * buildings_n + buildings_n - 1
 				// здания определяются по остатку от деления на buildings_n
 				// индекс состояния (m, b) в массиве adj = m * buildings_n + b % buildings_n
-				adj[]
-
+				int ind_i_from = i * buildings_n + ((from - 1) % buildings_n);
+				int ind_i_to = i * buildings_n + ((to - 1) % buildings_n);
+				adj[ind_i_from].emplace_back(ind_i_to, 0);
+				adj[ind_i_to].emplace_back(ind_i_from, 0);
 			}
-
 		}
 		input.close();
 	}
