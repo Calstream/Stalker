@@ -6,21 +6,21 @@
 
 using namespace std;
 
-string const iname = "innew.txt";
+string const iname = "input.txt";
 string const oname = "output.txt";
 
 class Graph
 {
 private:
-	int buildings_n;
 	int maps_n;
-	vector<int> distances; // :/
 	deque<int> queue;
 	vector<pair<int, int>> vertices; // first - map, second - building
 	vector<vector<pair<int, int>>> adj; // NK + N ~ buildings_n * maps_n + buildings_n
 	vector<vector<pair<int, int>>> maps;
 	int max_vertices;
 public:
+	vector<int> distances;
+	int buildings_n;
 	Graph()
 	{
 		ifstream input;
@@ -30,17 +30,9 @@ public:
 		input.close();
 		max_vertices = buildings_n * maps_n + buildings_n;
 		adj.resize(max_vertices);
-		distances.resize(buildings_n);
-
-		for (int i = 1; i <= buildings_n; i++)
-		{
-			vertices.push_back(make_pair(0, i));
-			distances[i - 1] = INT_MAX;
-		}
-
-		for (int i = 1; i <= maps_n; i++)
-			for (int j = 1; j <= buildings_n; j++)
-				vertices.push_back(make_pair(i, j));
+		distances.resize(max_vertices);
+		for (int i = 0; i < max_vertices; i++)
+			distances[i] = INT_MAX;
  	}
 
 	void make_adj()
@@ -58,9 +50,8 @@ public:
 		// остальные (между зданиями в пределах одной карты, вес = 0)
 		ifstream input;
 		input.open(iname);
-		input.ignore();
-		input.ignore();
-		input.ignore();
+		string ignore;
+		getline(input, ignore);
 		for (int i = 1; i <= maps_n; i++)
 		{
 			int n_roads_temp;
@@ -85,10 +76,8 @@ public:
 
 	void bfs()
 	{
-		// Инициализация
 		queue.push_back(0);
 		distances[0] = 0;
-		// Главный цикл
 		while (!queue.empty())
 		{
 			int v = queue.front();
@@ -112,11 +101,13 @@ int main()
 	Graph g = Graph();
 	g.make_adj();
 	g.bfs();
-	//ofstream output;
-	//output.open(oname);
-	//output.clear();
-
-	getchar();
+	ofstream output;      
+	output.open(oname);
+	output.clear();
+	if (g.distances[g.buildings_n - 1] == INT_MAX)
+		output << -1;
+	else
+		output << g.distances[g.buildings_n - 1];
 }
 
 
