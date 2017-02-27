@@ -11,7 +11,7 @@
 
 using namespace std;
 
-string const iname = "input.txt";
+string const iname = "innew.txt";
 string const oname = "output.txt";
 
 class Graph
@@ -23,7 +23,7 @@ private:
 	deque<int> queue;
 	vector<pair<int, int>> vertices; // first - map, second - building
 	vector<vector<pair<int, int>>> adj; // NK + N ~ buildings_n * maps_n + buildings_n
-
+	int max_vertices;
 public:
 	Graph()
 	{
@@ -31,11 +31,9 @@ public:
 		input.open(iname);
 		input >> buildings_n;
 		input >> maps_n;
-		int vn = buildings_n * maps_n + buildings_n;
-		adj.resize(vn);
+		max_vertices = buildings_n * maps_n + buildings_n;
+		adj.resize(max_vertices);
 		distances.resize(buildings_n);
-		vertices.resize(vn);
-		adj.resize(vn);
 		for (int i = 1; i <= buildings_n; i++)
 			vertices.push_back(make_pair(0, i));
 		for (int i = 1; i <= buildings_n; i++)
@@ -45,11 +43,18 @@ public:
 
 	void make_adj()
 	{
-		//Добавим для каждого x вершину (x, 0), и проведем для каждого y дуги (x, y) → (x, 0) с весом 0
-		// и (x, 0) → (x, y) с весом 1
-		for (int i = 1; i <= maps_n; i++)
-			for (int j = 1; j <= buildings_n; j++)
-				adj[j].emplace_back(buildings_n * (i - 1) + j, 1);
+		//Добавим для каждого x вершину (x, 0), и проведем для каждого y дуги (x, 0) → (x, y) с весом 1  
+		for (int i = 0; i < maps_n; i++)
+			for (int j = 0; j < buildings_n; j++)
+				adj[j].emplace_back(buildings_n * i + j + buildings_n, 1);
+		// и (x, y) → (x, 0) с весом 0
+		for (int i = buildings_n; i < max_vertices; i++)
+		{
+			int t = i % buildings_n;
+			adj[i].emplace_back(t, 0);
+		}
+		// остальные (между зданиями в пределах одной карты, вес = 0)
+
 	}
 
 	void bfs()
@@ -79,9 +84,10 @@ public:
 int main()
 {
 	Graph g = Graph();
-	ofstream output;
-	output.open(oname);
-	output.clear();
+	g.make_adj();
+	//ofstream output;
+	//output.open(oname);
+	//output.clear();
 
 	getchar();
 }
