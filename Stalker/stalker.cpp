@@ -1,13 +1,8 @@
-﻿#include<iostream>
-#include<string>
+﻿#include<string>
 #include<fstream>
 #include<vector>
-#include<algorithm>
-#include<set>
-#include<map>
-#include<list>
-#include<iterator>
 #include<deque>
+#include<climits>
 
 using namespace std;
 
@@ -38,7 +33,10 @@ public:
 		distances.resize(buildings_n);
 
 		for (int i = 1; i <= buildings_n; i++)
+		{
 			vertices.push_back(make_pair(0, i));
+			distances[i - 1] = INT_MAX;
+		}
 
 		for (int i = 1; i <= maps_n; i++)
 			for (int j = 1; j <= buildings_n; j++)
@@ -95,7 +93,7 @@ public:
 		{
 			int v = queue.front();
 			queue.pop_front();
-			for (int i = 0; i < (int)adj[v].size(); ++i)
+			for (int i = 0; i < adj[v].size(); ++i)
 				if (distances[adj[v][i].first] > distances[v] + adj[v][i].second)
 				{
 					distances[adj[v][i].first] = distances[v] + adj[v][i].second;
@@ -113,6 +111,7 @@ int main()
 {
 	Graph g = Graph();
 	g.make_adj();
+	g.bfs();
 	//ofstream output;
 	//output.open(oname);
 	//output.clear();
