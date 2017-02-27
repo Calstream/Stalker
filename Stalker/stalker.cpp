@@ -1,4 +1,4 @@
-#include<iostream>
+﻿#include<iostream>
 #include<string>
 #include<fstream>
 #include<vector>
@@ -21,7 +21,7 @@ private:
 	int maps_n;
 	vector<int> distances; // :/
 	deque<int> queue;
-	vector<pair<int, int>> vertices;
+	vector<pair<int, int>> vertices; // first - map, second - building
 	vector<vector<pair<int, int>>> adj; // NK + N ~ buildings_n * maps_n + buildings_n
 
 public:
@@ -31,16 +31,33 @@ public:
 		input.open(iname);
 		input >> buildings_n;
 		input >> maps_n;
+		int vn = buildings_n * maps_n + buildings_n;
+		adj.resize(vn);
+		distances.resize(buildings_n);
+		vertices.resize(vn);
+		adj.resize(vn);
+		for (int i = 1; i <= buildings_n; i++)
+			vertices.push_back(make_pair(0, i));
+		for (int i = 1; i <= buildings_n; i++)
+			for (int j = 1; j <= maps_n; j++)
+				vertices.push_back(make_pair(i, j));
+ 	}
+
+	void make_adj()
+	{
+		//Добавим для каждого x вершину (x, 0), и проведем для каждого y дуги (x, y) → (x, 0) с весом 0
+		// и (x, 0) → (x, y) с весом 1
+		for (int i = 1; i <= maps_n; i++)
+			for (int j = 1; j <= buildings_n; j++)
+				adj[j].emplace_back(buildings_n * (i - 1) + j, 1);
 	}
-
-
 
 	void bfs()
 	{
-		// �������������
+		// Инициализация
 		queue.push_back(0);
 		distances[0] = 0;
-		// ������� ����
+		// Главный цикл
 		while (!queue.empty())
 		{
 			int v = queue.front();
