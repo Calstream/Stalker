@@ -12,28 +12,14 @@ string const oname = "output.txt";
 
 class Graph
 {
-public:
+private:
 	int maps_n;
 	deque<int> queue;
 	vector<pair<int, int>> vertices; // first - map, second - building
 	unordered_map<int, vector<pair<int, int>>> adj;
-	//vector<vector<pair<int, int>>> adj; // NK + N ~ buildings_n * maps_n + buildings_n
 	int max_vertices;
 	vector<int> distances;
 	int buildings_n;
-	Graph()
-	{
-		ifstream input;
-		input.open(iname);
-		input >> buildings_n;
-		input >> maps_n;
-		input.close();
-		max_vertices = buildings_n * maps_n + buildings_n;
-		//adj.resize(max_vertices);
-		distances.resize(max_vertices);
-		for (int i = 0; i < max_vertices; i++)
-			distances[i] = INT_MAX;
- 	}
 
 	void make_adj()
 	{
@@ -93,21 +79,40 @@ public:
 				}
 		}
 	}
+
+public:
+	Graph()
+	{
+		ifstream input;
+		input.open(iname);
+		input >> buildings_n;
+		input >> maps_n;
+		input.close();
+		max_vertices = buildings_n * maps_n + buildings_n;
+		distances.resize(max_vertices);
+		for (int i = 0; i < max_vertices; i++)
+			distances[i] = INT_MAX;
+ 	}
+
+	void out()
+	{
+		make_adj();
+		bfs();
+		ofstream output;
+		output.open(oname);
+		output.clear();
+		if (distances[buildings_n - 1] == INT_MAX)
+			output << -1;
+		else
+			output << distances[buildings_n - 1];
+	}
 };
 
 
 int main()
 {
 	Graph g = Graph();
-	g.make_adj();
-	g.bfs();
-	ofstream output;      
-	output.open(oname);
-	output.clear();
-	if (g.distances[g.buildings_n - 1] == INT_MAX)
-		output << -1;
-	else
-		output << g.distances[g.buildings_n - 1];
+	g.out();
 }
 
 
